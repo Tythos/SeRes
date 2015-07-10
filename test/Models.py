@@ -8,7 +8,7 @@ class Flat:
 		self.name = "[unknown]"
 	
 	def saySomething(self):
-		print '"' + self.name + '" is somewhere around ' + str(self.numeric) + '? ' + str(self.logical) + '!'
+		return '"' + self.name + '" is somewhere around ' + str(self.numeric) + '? ' + str(self.logical) + '!'
 		
 		
 class Child(Flat):
@@ -27,7 +27,3 @@ class DataStructures:
 	
 	def __repr__(self):
 		return "array: " + repr(self.array) + "; dictionary: " + repr(self.dict)
-
-		
-def getAll():
-	return Flat(), Child(), DataStructures()
