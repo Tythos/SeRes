@@ -1,9 +1,18 @@
 """ Run all package tests (eventually)
 """
 
-from Models import Flat, Child, DataStructures
-from Rest import parseTest
+from SeRes.test.Models import Flat, Child, DataStructures
+from SeRes.test.Rest import parseTest, matchTest
 
+
+def reportTest(f):
+	try:
+		f()
+	except:
+		print(f.__name__ + " FAILED")
+	else:
+		print(f.__name__ + " PASSED")	
+	
 def modelTest():
 	f = Flat()
 	c = Child()
@@ -13,20 +22,10 @@ def modelTest():
 	repr(ds)
 
 def runAll():
-	try:
-		modelTest()
-	except:
-		print "modelTest FAILED"
-	else:
-		print "modelTest PASSED"
+	reportTest(modelTest)
+	reportTest(parseTest)
+	reportTest(matchTest)
 
-	try:
-		parseTest()
-	except:
-		print "parseTest FAILED"
-	else:
-		print "parseTest PASSED"
-
-		
+	
 if __name__ == "__main__":
 	runAll()

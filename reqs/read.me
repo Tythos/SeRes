@@ -1,0 +1,23 @@
+The pipeline for end-to-end serializaion to, and deserialization from, an arbitrary-format,
+arbitrary-protocol REST data store involves several components:
+	[source] <=> [protocol] <=> [format] <=> array of dictionaries <=> array of objects
+	
+At runtime, requests are routed through the appropriate Format and Protocol objects by a series
+of matches in which registered patterns are evaluated against one or more URI components. There
+is also an alternative pipeline in cases where the Format and Protocol 
+	[source] <=> [protocol] <=> [format] => (array of dictionaries) <= Serial => (single object or array of objects)
+	
+[source]
+
+In this diagram, [source] should be able to include ANY data source (local files, relational
+databases, RSS feeds, web pages, remote sessions, etc.). Even non-REST-ful data stores can,
+by virtue of the SeRes interface and abstraction, be treated in a REST-ful manner.
+
+The one exception is data stores where authentication is required. The in-URI username/password
+standard outlined in RFC-3896 can be used, but is by nature insecure. A quasi-hidden
+authentication service (OpenID-based? cookie-based?) should eventually be supported, even though
+this violates the stateless property of REST data store specifications.
+
+[protocol] 
+
+A protocol 
