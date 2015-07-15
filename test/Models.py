@@ -7,7 +7,7 @@ class Flat:
 		self.numeric = 1.62
 		self.name = "[unknown]"
 	
-	def saySomething(self):
+	def say_something(self):
 		return '"' + self.name + '" is somewhere around ' + str(self.numeric) + '? ' + str(self.logical) + '!'
 		
 		
@@ -16,7 +16,7 @@ class Child(Flat):
 		Flat.__init__(self)
 		self.title = "Class Instance Extraordinaire"
 		
-	def getSignature(self):
+	def get_signature(self):
 		return self.name + ', ' + self.title
 		
 		

@@ -8,7 +8,7 @@
 	by an instance of the Serial class, which handles a quasi-global context.
 """
 
-from SeRes.Rest import RestPattern
+from seres.rest import RestPattern
 
 class Format:
 	def __init__(self):

@@ -7,32 +7,32 @@ if sys.version_info.major == 2:
 else:
 	from urllib.parse import urlparse
 from os.path import split
-from SeRes.Rest import RestUri, RestPattern
+from seres.rest import RestUri, RestPattern
 
 
-testUri = "https://user:pass@server.org:1234/path/to/file.ext?arg1&arg2=va%3Dl2#frag"
+test_uri = "https://user:pass@server.org:1234/path/to/file.ext?arg1&arg2=va%3Dl2#frag"
 
 
-def parseTestOld():
-	pr = urlparse(testUri)
-	pathParts = split(pr.path)
-	toReturn = ""
-	toReturn = toReturn + "Test URI: '" + testUri + "':\n"
-	toReturn = toReturn + "Required fields:\n"
-	toReturn = toReturn + "    PROTOCOL: " + pr.scheme + "' (required)\n"
-	toReturn = toReturn + "    FQDN: " + pr.hostname + "' (required)\n"
-	toReturn = toReturn + "    PATH: " + pathParts[0] + "' (required)\n"
-	toReturn = toReturn + "Optional fields:\n"
-	toReturn = toReturn + "    USERNAME: " + pr.username + "\n"
-	toReturn = toReturn + "    PASSWORD: " + pr.password + "\n"
-	toReturn = toReturn + "    PORT: " + str(pr.port) + "\n"
-	toReturn = toReturn + "    FILE: " + pathParts[1] + "\n"
-	toReturn = toReturn + "    ARGUMENTS: " + repr(pr.query) + "\n"
-	toReturn = toReturn + "    FRAGMENT: " + pr.fragment + "\n"
-	return toReturn
+def urlparse_test():
+	pr = urlparse(test_uri)
+	path_parts = split(pr.path)
+	to_return = ""
+	to_return = to_return + "Test URI: '" + test_uri + "':\n"
+	to_return = to_return + "Required fields:\n"
+	to_return = to_return + "    PROTOCOL: " + pr.scheme + "' (required)\n"
+	to_return = to_return + "    FQDN: " + pr.hostname + "' (required)\n"
+	to_return = to_return + "    PATH: " + path_parts[0] + "' (required)\n"
+	to_return = to_return + "Optional fields:\n"
+	to_return = to_return + "    USERNAME: " + pr.username + "\n"
+	to_return = to_return + "    PASSWORD: " + pr.password + "\n"
+	to_return = to_return + "    PORT: " + str(pr.port) + "\n"
+	to_return = to_return + "    FILE: " + path_parts[1] + "\n"
+	to_return = to_return + "    ARGUMENTS: " + repr(pr.query) + "\n"
+	to_return = to_return + "    FRAGMENT: " + pr.fragment + "\n"
+	return to_return
 	
-def parseTest():
-	ru = RestUri(testUri)
+def parse_test():
+	ru = RestUri(test_uri)
 	assert ru.scheme == "https"
 	assert ru.user == "user"
 	assert ru.password == "pass"
@@ -44,8 +44,8 @@ def parseTest():
 	assert ru.query == {'arg1': True, 'arg2': 'va=l2'}
 	assert ru.frag == "frag"
 
-def matchTest():
-	ru = RestUri(testUri)
+def match_test():
+	ru = RestUri(test_uri)
 	rp = RestPattern()
 	rp.scheme = "^https{0,1}$"
-	assert rp.isMatch(ru)
+	assert rp.is_match(ru)

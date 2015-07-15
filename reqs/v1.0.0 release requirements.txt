@@ -1,0 +1,6 @@
+The v1.0.0 release will be defined by the following features, tested and documented, with appropriate use-cases and data where appropriate.
+
+Protocols implemented: file:// (local), sqlite://, http(s)://
+Formats implemented: .CSV, .JSON, Python pickle
+Serial implementation, including Protocol & Format registry and object-dictionary-object conversion
+Complete REST URI parsing and matching objects

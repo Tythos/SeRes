@@ -11,7 +11,7 @@ from os.path import split as splitpath, splitext
 from re import split, match
 
 
-def _matchAllQueries(query):
+def _match_all_queries(query):
 	return True
 	
 
@@ -29,14 +29,14 @@ class RestUri:
 			self.ext = ext[1:]
 		else:
 			self.ext = ""
-		self.query = RestUri.parseArgs(pr.query)
+		self.query = RestUri.parse_args(pr.query)
 		self.frag = pr.fragment
 		
-	def getFileName(self):
+	def get_file_name(self):
 		return self.file + self.ext
 		
 	@staticmethod
-	def parseArgs(query):
+	def parse_args(query):
 		args = {}
 		parts = split("&", query)
 		for part in parts:
@@ -57,12 +57,12 @@ class RestPattern:
 		self.frag = ".*"
 		self.password = ".*"
 		self.port = ".*"
-		self.query = _matchAllQueries
+		self.query = _match_all_queries
 		self.scheme = ".*"
 		self.server = ".*"
 		self.user = ".*"
 
-	def isMatch(self, restUri):
+	def is_match(self, restUri):
 		# Returns true if all patterns match their respective fields
 		isMatch = True
 		if match(self.dirpath, restUri.dirpath) is None:

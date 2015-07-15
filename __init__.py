@@ -1,6 +1,6 @@
 __all__ = [
-	"Formats",
-	"Protocols",
-	"Rest",
-	"Serial"
+	"formats",
+	"protocols",
+	"rest",
+	"serial"
 ]
