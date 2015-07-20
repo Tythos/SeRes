@@ -1,6 +1,8 @@
 """ Defines models that are serialized and deserialized by test routines
 """
 
+import unittest
+
 class Flat:
 	def __init__(self):
 		self.logical = True
@@ -10,7 +12,6 @@ class Flat:
 	def say_something(self):
 		return '"' + self.name + '" is somewhere around ' + str(self.numeric) + '? ' + str(self.logical) + '!'
 		
-		
 class Child(Flat):
 	def __init__(self):
 		Flat.__init__(self)
@@ -19,7 +20,6 @@ class Child(Flat):
 	def get_signature(self):
 		return self.name + ', ' + self.title
 		
-		
 class DataStructures:
 	def __init__(self):
 		self.array = [False, 2, "three"]
@@ -27,3 +27,19 @@ class DataStructures:
 	
 	def __repr__(self):
 		return "array: " + repr(self.array) + "; dictionary: " + repr(self.dict)
+
+class ModelsTestCase(unittest.TestCase):
+	def test_basic_models(self):
+		f, c, ds = get_all_models()
+		
+def get_all_models():
+	f = Flat()
+	c = Child()
+	ds = DataStructures()
+	return f, c, ds
+
+if __name__ == "__main__":
+	f, c, ds = get_all_models()
+	print(f)
+	print(c)
+	print(ds)
