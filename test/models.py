@@ -2,6 +2,7 @@
 """
 
 import unittest
+from seres.serial import Serial
 
 class Flat:
 	def __init__(self):
@@ -38,6 +39,11 @@ def get_all_models():
 	ds = DataStructures()
 	return f, c, ds
 
+def get_all_dicts():
+	f, c, ds = get_all_models()
+	s = Serial()
+	return s.serialize([f, c, ds])
+	
 if __name__ == "__main__":
 	f, c, ds = get_all_models()
 	print(f)

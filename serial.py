@@ -19,8 +19,10 @@ Therefore, the Serial instance is the primary user interface to the seres inobun
 data pipeline.
 """
 
+import importlib
 import types
 import sys
+import warnings
 import seres.formats
 import seres.protocols
 
@@ -61,12 +63,38 @@ class Serial():
 		p.outbound(ru, plaintext)
 		
 	def deserialize(self, dicts):
-		# Populate instantiations of each object using _seres_class property
-		return []
+		# Populate instantiations of each object using the __uni__ property to
+		# determine (and import, if necessary) the appropriate module
+		objs = []
+		for dict in dicts:
+			try:
+				module_name, class_name = dict['__uni__'].rsplit(".", 1)
+				if module_name not in sys.modules:
+					m = importlib.import_module(module_name)
+				else:
+					m = sys.modules[module_name]
+				c = getattr(m, class_name)
+				obj = c()
+				for field in list(dict.keys()):
+					if field != "__uni__":
+						setattr(obj, field, dict[field])
+				objs.append(obj)
+			except Exception as e:
+				# In reality, there will be a large number of different things
+				# that could go wrong; we should chain try-except, or implement
+				# our own exceptions for the deserialization process.
+				warnings.warn("Unable to deserialize to class at UNI '" + dict['__uni__'] + "'; a None will be inserted instead", RuntimeWarning)
+				objs.append(None)
+		return objs
 		
 	def serialize(self, objs):
 		# Convert list of objects into a list of dicts
-		return []
+		dicts = []
+		for obj in objs:
+			dict = obj.__dict__
+			dict['__uni__'] = obj.__module__ + "." + obj.__class__.__name__
+			dicts.append(dict)
+		return dicts
 
 	def get_filter(self, filters, ru):
 		# Return the first entry with a matching patterns

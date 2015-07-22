@@ -27,16 +27,16 @@ class Format:
 
 	def inbound(self, plaintext):
 		# Should return a dictionary or collection of dictionaries as parsed from the given plaintext
-		raise NotImplementedError("Format interface is an abstract class")
+		raise NotImplementedError("Format interface is a quasi-abstract class")
 		
 	def outbound(self, dicts):
 		# Should return a format-specific representation of the object or collection of objects in plaintext
-		raise NotImplementedError("Format interface is an abstract class")
+		raise NotImplementedError("Format interface is a quasi-abstract class")
 
 class Csv(Format):
 	def __init__(self):
 		Format.__init__(self)
-		self.pattern.ext = "^\.csv$"
+		self.pattern.ext = "^csv$"
 		
 	def inbound(self, plaintext):
 		header_row = None
@@ -63,7 +63,7 @@ class Csv(Format):
 class Json(Format):
 	def __init__(self):
 		Format.__init__(self)
-		self.pattern.ext = "^\.json$"
+		self.pattern.ext = "^json$"
 		
 	def inbound(self, plaintext):
 		return json.loads(plaintext)

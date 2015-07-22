@@ -39,4 +39,9 @@ def suite():
 	return ts
 				
 if __name__ == "__main__":
-	unittest.TextTestRunner(verbosity=2).run(suite())
+	ttr = unittest.TextTestRunner(verbosity=3).run(suite())
+	nTests = ttr.testsRun + len(ttr.skipped)
+	print("Report:")
+	print("\t" + str(len(ttr.failures)) + "/" + str(nTests) + " failed")
+	print("\t" + str(len(ttr.errors)) + "/" + str(nTests) + " errors")
+	print("\t" + str(len(ttr.skipped)) + "/" + str(nTests) + " skipped")

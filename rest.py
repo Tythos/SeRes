@@ -23,7 +23,7 @@ class RestUri:
 		self.user = pr.username if pr.username is not None else ""
 		self.password = pr.password if pr.password is not None else ""
 		self.server = pr.hostname if pr.hostname is not None else ""
-		self.port = str(pr.port) if str(pr.port) is not None else ""
+		self.port = str(pr.port) if pr.port is not None else ""
 		self.dirpath, fullfile = splitpath(pr.path)
 		if self.dirpath is None:
 			self.dirpath = ""
@@ -40,7 +40,7 @@ class RestUri:
 		self.frag = pr.fragment if pr.fragment is not None else ""
 		
 	def get_file_name(self):
-		return self.file + self.ext
+		return self.file + "." + self.ext
 		
 	def get_full_path(self):
 		return self.dirpath + os.sep + self.get_file_name()
@@ -56,6 +56,7 @@ class RestUri:
 		if len(self.port) > 0:
 			full_uri += ":" + self.port
 		full_uri += self.get_full_path()
+		return full_uri
 		
 	@staticmethod
 	def parse_args(query):
