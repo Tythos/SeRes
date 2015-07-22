@@ -7,13 +7,19 @@
 	* path
 """
 
-from seres.rest import RestPattern
-from re import match
 import os
+from re import match
+import sys
+if sys.version_info.major == 2:
+	import urllib2 as urllib
+else:
+	import urllib.request as urllib
+from seres.rest import RestPattern
+
 
 class Protocol:
 	def __init__(self):
-		raise NotImplementedError("Protocol interface is an abstract class")
+		self.pattern = RestPattern()
 	
 	def inbound(self, ru):
 		raise NotImplementedError("Protocol interface is an abstract class")
@@ -24,7 +30,7 @@ class Protocol:
 		
 class LocalFile(Protocol):
 	def __init__(self):
-		self.pattern = RestPattern()
+		Protocol.__init__(self)
 		self.pattern.scheme = "^file$"
 		self.pattern.server = "^$"
 		
@@ -48,3 +54,15 @@ class LocalFile(Protocol):
 		f = open(fullpath, "w")
 		f.write(text)
 		f.close()
+
+class Http(Protocol):
+	def __init__(self):
+		Protocol.__init__(self)
+		self.pattern.scheme = "^https{0,1}$"
+		
+	def inbound(self, ru):
+		response = urllib.urlopen(ru.get_full_uri())
+		return response.read()
+	
+	def outbound(self, ru):
+		raise Exception("HTTP protocol is read-only")

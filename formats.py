@@ -13,17 +13,17 @@ logic will need to be added to merge all fields when parsing/generating sets of 
 """
 
 import csv
+import json
 import sys
 if sys.version_info.major == 2:
 	from io import BytesIO as StringBuffer
 else:
-	from io import StringIo as StringBuffer
+	from io import StringIO as StringBuffer
 from seres.rest import RestPattern
 
 class Format:
 	def __init__(self):
 		self.pattern = RestPattern()
-		raise NotImplementedError("Format interface is an abstract class")
 
 	def inbound(self, plaintext):
 		# Should return a dictionary or collection of dictionaries as parsed from the given plaintext
@@ -33,9 +33,9 @@ class Format:
 		# Should return a format-specific representation of the object or collection of objects in plaintext
 		raise NotImplementedError("Format interface is an abstract class")
 
-class CsvFormat(Format):
+class Csv(Format):
 	def __init__(self):
-		self.pattern = RestPattern()
+		Format.__init__(self)
 		self.pattern.ext = "^\.csv$"
 		
 	def inbound(self, plaintext):
@@ -52,10 +52,21 @@ class CsvFormat(Format):
 		return dicts
 	
 	def outbound(self, dicts):
-		field_names = dicts[0].keys()
+		field_names = list(dicts[0].keys())
 		output = StringBuffer()
 		writer = csv.writer(output)
 		writer.writerow(field_names)
 		for d in dicts:
-			writer.writerow(d.values())
+			writer.writerow(list(d.values()))
 		return output.getvalue()
+		
+class Json(Format):
+	def __init__(self):
+		Format.__init__(self)
+		self.pattern.ext = "^\.json$"
+		
+	def inbound(self, plaintext):
+		return json.loads(plaintext)
+	
+	def outbound(self, dicts):
+		return json.dumps(dicts)

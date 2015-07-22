@@ -1,12 +1,13 @@
 """ Defines common Rest utilities, including an extension of the native urlparse class
 """
 
+import os
 import sys
 if sys.version_info.major == 2:
 	from urlparse import urlparse
-	from urllib import unquote
+	from urllib import unquote, quote
 else:
-	from urllib.parse import urlparse, unquote		
+	from urllib.parse import urlparse, unquote, quote
 from os.path import split as splitpath, splitext
 from re import split, match
 
@@ -18,22 +19,43 @@ def _match_all_queries(query):
 class RestUri:
 	def __init__(self, uri):
 		pr = urlparse(uri)
-		self.scheme = pr.scheme
-		self.user = pr.username
-		self.password = pr.password
-		self.server = pr.hostname
-		self.port = str(pr.port)
+		self.scheme = pr.scheme if pr.scheme is not None else ""
+		self.user = pr.username if pr.username is not None else ""
+		self.password = pr.password if pr.password is not None else ""
+		self.server = pr.hostname if pr.hostname is not None else ""
+		self.port = str(pr.port) if str(pr.port) is not None else ""
 		self.dirpath, fullfile = splitpath(pr.path)
+		if self.dirpath is None:
+			self.dirpath = ""
 		self.file, ext = splitext(fullfile)
+		if self.file is None:
+			self.file = ""
 		if len(ext) > 0:
 			self.ext = ext[1:]
 		else:
 			self.ext = ""
 		self.query = RestUri.parse_args(pr.query)
-		self.frag = pr.fragment
+		if self.query is None:
+			self.query = {}
+		self.frag = pr.fragment if pr.fragment is not None else ""
 		
 	def get_file_name(self):
 		return self.file + self.ext
+		
+	def get_full_path(self):
+		return self.dirpath + os.sep + self.get_file_name()
+		
+	def get_full_uri(self):
+		full_uri = self.scheme + "://"
+		if len(self.user) > 0:
+			full_uri += self.user
+			if len(self.password) > 0:
+				full_uri += ":" + self.password
+			full_uri += "@"
+		full_uri += self.server
+		if len(self.port) > 0:
+			full_uri += ":" + self.port
+		full_uri += self.get_full_path()
 		
 	@staticmethod
 	def parse_args(query):
@@ -48,6 +70,21 @@ class RestUri:
 				g = mPair.groups()
 				args[g[0]] = unquote(g[1])
 		return args
+		
+	@staticmethod
+	def merge_args(args):
+		query = ""
+		field_names = args.keys()
+		for ndx, f in enumerate(field_names):
+			if type(args[f]) == type(True) and args[f]:
+				entry = f
+			else:
+				entry = f + "=" + quote(args[f])
+			if ndx > 0:
+				query += "&" + entry
+			else:
+				query = entry
+		return query
 
 class RestPattern:
 	def __init__(self):
