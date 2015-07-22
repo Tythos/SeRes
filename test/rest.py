@@ -49,3 +49,20 @@ class RestTestCase(unittest.TestCase):
 		rp = RestPattern()
 		rp.scheme = "^https{0,1}$"
 		assert rp.is_match(ru)
+		
+	def test_query_parse(self):
+		ru = RestUri(test_uri)
+		pr = urlparse(test_uri)
+		a = RestUri.merge_args(ru.query)
+		s1 = a.split("&")
+		s1.sort()
+		s2 = pr.query.split("&")
+		s2.sort()
+		self.assertEquals(s1, s2)
+		
+	def test_full_uri(self):
+		ru = RestUri(test_uri)
+		fu = ru.get_full_uri()
+
+if __name__ == "__main__":
+	unittest.main()

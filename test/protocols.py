@@ -16,5 +16,5 @@ class LocalFileTest(unittest.TestCase):
 		lf = LocalFile()
 		lf.outbound(rest_uri, contents)
 		result = lf.inbound(rest_uri)
-		assert result == contents
+		self.assertEquals(result, contents)
 	
