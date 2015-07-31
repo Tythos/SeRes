@@ -11,14 +11,12 @@ else:
 from os.path import split as splitpath, splitext
 from re import split, match
 
-
 def _match_all_queries(query):
 	return True
 	
-
 class RestUri:
 	def __init__(self, uri):
-		pr = urlparse(uri)
+		pr = urlparse(uri.replace("\\", "/"))
 		self.scheme = pr.scheme if pr.scheme is not None else ""
 		self.user = pr.username if pr.username is not None else ""
 		self.password = pr.password if pr.password is not None else ""
@@ -43,7 +41,11 @@ class RestUri:
 		return self.file + "." + self.ext
 		
 	def get_full_path(self):
-		return self.dirpath + os.sep + self.get_file_name()
+		full_path = self.dirpath + "/" + self.get_file_name()
+		if full_path[0] == "/" and os.sep == "\\":
+			# DOS paths should ignore the leading / that indicates a root drive path
+			full_path = full_path[1:]
+		return full_path
 		
 	def get_full_uri(self):
 		full_uri = self.scheme + "://"
@@ -55,7 +57,10 @@ class RestUri:
 		full_uri += self.server
 		if len(self.port) > 0:
 			full_uri += ":" + self.port
-		full_uri += self.get_full_path()
+		full_path = self.get_full_path()
+		if os.sep == "\\":
+			full_path = "/" + full_path
+		full_uri += full_path
 		return full_uri
 		
 	@staticmethod
@@ -63,7 +68,7 @@ class RestUri:
 		args = {}
 		parts = split("&", query)
 		for part in parts:
-			mSingle = match("^([\w\d_]+)$", part)
+			mSingle = match("^([^=]+)$", part)
 			mPair = match("^([\w\d_]+)=(.+)$", part)
 			if mSingle is not None:
 				args[part] = True

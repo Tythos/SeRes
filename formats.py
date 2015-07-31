@@ -15,6 +15,7 @@ logic will need to be added to merge all fields when parsing/generating sets of 
 import csv
 import json
 import sys
+import pickle
 if sys.version_info.major == 2:
 	from io import BytesIO as StringBuffer
 else:
@@ -41,7 +42,7 @@ class Csv(Format):
 	def inbound(self, plaintext):
 		header_row = None
 		dicts = []
-		for row in csv.reader(plaintext.split()):
+		for row in csv.reader(plaintext.splitlines()):
 			if header_row is None:
 				header_row = row
 			else:
@@ -58,7 +59,9 @@ class Csv(Format):
 		writer.writerow(field_names)
 		for d in dicts:
 			writer.writerow(list(d.values()))
-		return output.getvalue()
+		str = output.getvalue()
+		output.close()
+		return str
 		
 class Json(Format):
 	def __init__(self):
@@ -70,3 +73,23 @@ class Json(Format):
 	
 	def outbound(self, dicts):
 		return json.dumps(dicts)
+		
+class Pickle(Format):
+	def __init__(self):
+		Format.__init__(self)
+		self.pattern.ext = "^pkl$"
+		
+	def inbound(self, plaintext):
+		sb = StringBuffer(plaintext)
+		d = pickle.Unpickler(sb)
+		dicts = d.load()
+		sb.close()
+		return dicts
+	
+	def outbound(self, dicts):
+		sb = StringBuffer()
+		p = pickle.Pickler(sb)
+		p.dump(dicts)
+		str = sb.getvalue()
+		sb.close()
+		return str
