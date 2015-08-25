@@ -25,6 +25,7 @@ import sys
 import warnings
 import seres.formats
 import seres.protocols
+import seres.rest
 
 if sys.version_info.major == 2:
 	def is_class_type(c):
@@ -40,6 +41,7 @@ class Serial():
 		
 	def inbound(self, ru):
 		# Step 1: Fetch plaintext from given RestUri using matching protocol
+		ru = Serial.normalizeRuArg(ru)
 		p = self.get_filter(self._protocols, ru)
 		plaintext = p.inbound(ru)
 		
@@ -52,6 +54,7 @@ class Serial():
 	
 	def outbound(self, ru, objects):
 		# Step 1: Serialize objects into list of dictionaries
+		ru = Serial.normalizeRuArg(ru)
 		dicts = self.serialize(objects)
 		
 		# Step 2: Transcribe dictionaries into a plaintext representation using the matching format
@@ -104,7 +107,7 @@ class Serial():
 				ndx = i
 				break
 		if ndx < 0:
-			Exception("Could not find filter matching " + ru.get_full_uri())
+			raise Exception("Could not find filter matching " + ru.get_full_uri())
 		return filters[ndx]
 			
 	def add_format(self, f):
@@ -114,6 +117,39 @@ class Serial():
 	def add_protocol(self, p):
 		# Insert at beginning to ensure more specialized filters are caught first
 		self._protocols.insert(0, p)
+		
+	@staticmethod
+	def normalizeRuArg(arg):
+		if type(arg) == type(seres.rest.RestUri("")):
+			return arg
+		elif type(arg) == type(""):
+			return seres.rest.RestUri(arg)
+		else:
+			raise Exception("Could not parse the given argument into a RestUri object")
+			
+	@staticmethod
+	def get_tabular_dicts(dicts):
+		# Given an array of dictionary representations of serialized objects, returns a
+		# similar array with indentical fields for each entry that will be empty when
+		# irrelevant (None values are used for empty fields). Fields are also re-ordered
+		# for consistent organization between objects. This is particularly useful for
+		# outbound methods of tabular formats, which only have one header row for all entries.
+		all_fields = []
+		for d in dicts:
+			for k in d.keys():
+				if k not in all_fields:
+					all_fields.append(k)
+		all_fields.sort()
+		tdicts = []
+		for d in dicts:
+			nd = {}
+			for f in all_fields:
+				if f in d:
+					nd[f] = d[f]
+				else:
+					nd[f] = None
+			tdicts.append(nd)
+		return tdicts
 		
 def get_default_formats():
 	# Iterate through the contents of seres.formats to initialize and return default
