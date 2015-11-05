@@ -1,0 +1,4 @@
+name,title,__uni__,numeric,dict,logical,array
+[unknown],,seres.test.models.Flat,1.62,,True,
+[unknown],Class Instance Extraordinaire,seres.test.models.Child,1.62,,True,
+,,seres.test.models.DataStructures,,"{'three': {'field': 'value', 'empty': {}}, 'two': 2, 'one': True}",,"[False, 2, 'three']"

@@ -5,6 +5,7 @@ import importlib
 import sys
 import types
 import unittest
+import models
 
 if sys.version_info.major == 2:
 	def is_test_case(c):
@@ -38,6 +39,12 @@ def suite():
 				ts.addTests(s)
 	return ts
 				
+def get_test_models():
+	f = models.Flat()
+	c = models.Child()
+	ds = models.DataStructures()
+	return f, c, ds
+
 if __name__ == "__main__":
 	ttr = unittest.TextTestRunner(verbosity=3).run(suite())
 	nTests = ttr.testsRun + len(ttr.skipped)

@@ -13,83 +13,75 @@ logic will need to be added to merge all fields when parsing/generating sets of 
 """
 
 import csv
-import json
 import sys
-import pickle
+from seres import parsers
+
 if sys.version_info.major == 2:
 	from io import BytesIO as StringBuffer
 else:
 	from io import StringIO as StringBuffer
-from seres.rest import RestPattern
 
-class Format:
-	def __init__(self):
-		self.pattern = RestPattern()
+class Format(parsers.Parser):
+	@classmethod
+	def ptext2dicts(cls, ptext):
+		# Should return a dictionary or collection of dictionaries as parsed
+		# from the given plaintext. Dictionary entries should have a uniform
+		# schema (though this is less important than for the reverse).
+		raise NotImplementedError("This format parser has an unimplemented ptext2dicts interface")
 
-	def inbound(self, plaintext):
-		# Should return a dictionary or collection of dictionaries as parsed from the given plaintext
-		raise NotImplementedError("Format interface is a quasi-abstract class")
+	@classmethod
+	def dicts2ptext(cls, dicts):
+		# Should return a format-specific representation of the object or
+		# collection of objects in plaintext given a list of dictionaries with a
+		# uniform schema
+		raise NotImplementedError("This format parser has an unimplemented dicts2ptext interface")
 		
-	def outbound(self, dicts):
-		# Should return a format-specific representation of the object or collection of objects in plaintext
-		raise NotImplementedError("Format interface is a quasi-abstract class")
+	@classmethod
+	def ptext2value(cls, ptext):
+		# Parses a plaintext representation of a single value for matching
+		# primitive types (True/False, int/float, and defaulting to string)
+		if ptext.lower() == "true":
+			return True
+		elif ptext.lower() == "false":
+			return False
+		try:
+			value = int(ptext)
+		except:
+			try:
+				value = float(ptext)
+			except:
+				value = ptext
+		return value
 
 class Csv(Format):
-	def __init__(self):
-		Format.__init__(self)
-		self.pattern.ext = "^csv$"
-		
-	def inbound(self, plaintext):
+	@classmethod
+	def get_filters(cls):
+		f = super(Csv, cls).get_filters()
+		f['ext'] = "^csv$"
+		return f
+
+	@classmethod
+	def ptext2dicts(cls, ptext):
 		header_row = None
 		dicts = []
-		for row in csv.reader(plaintext.splitlines()):
+		for row in csv.reader(ptext.splitlines()):
 			if header_row is None:
 				header_row = row
 			else:
 				entry = {}
 				for ndx, field in enumerate(header_row):
-					entry[field] = row[ndx]
+					entry[field] = Format.ptext2value(row[ndx])
 				dicts.append(entry)
 		return dicts
 	
-	def outbound(self, dicts):
+	@classmethod
+	def dicts2ptext(cls, dicts):
 		field_names = list(dicts[0].keys())
 		output = StringBuffer()
 		writer = csv.writer(output)
 		writer.writerow(field_names)
 		for d in dicts:
 			writer.writerow(list(d.values()))
-		str = output.getvalue()
+		ptext = output.getvalue()
 		output.close()
-		return str
-		
-class Json(Format):
-	def __init__(self):
-		Format.__init__(self)
-		self.pattern.ext = "^json$"
-		
-	def inbound(self, plaintext):
-		return json.loads(plaintext)
-	
-	def outbound(self, dicts):
-		return json.dumps(dicts)
-		
-class Pickle(Format):
-	def __init__(self):
-		Format.__init__(self)
-		self.pattern.ext = "^pkl$"
-		
-	def inbound(self, plaintext):
-		sb = StringBuffer(plaintext)
-		d = pickle.Unpickler(sb)
-		dicts = d.load()
-		sb.close()
-		return dicts
-	
-	def outbound(self, dicts):
-		sb = StringBuffer()
-		p = pickle.Pickler(sb)
-		p.dump(dicts)
-		str = sb.getvalue()
-		sb.close()
-		return str
+		return ptext

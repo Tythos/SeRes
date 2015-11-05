@@ -1,0 +1,23 @@
+Basic use case, where [uri] is a REST-ful URI string and [objs] is a list of Python objects
+> import seres
+> seres.create([uri], [objs])
+> [objs] = seres.read([uri])
+> [objs][0]['random_property'] = "New value"
+> seres.update([uri], [objs])
+> seres.delete([uri])
+
+Under the hood, here is what happens with each CRUD action:
+ * The [uri] string is parsed into a REST-ful URI representation [ru]
+ * The [ru] is used to resolve a particular format (plain-text representation) and protocol (data store interface) parser pair
+ * For outbound operations (create, update, delete):
+    - The [objs] are translated into a list of dictionaries
+    - The format parser is used to translate the list of dictionaries into a plain-text representation
+    - The protocol parser is used to transmit the plain-text representation to the data store using the appropriate operation
+ * For inbound operations (read):
+    - The protocol parser is used to query the appropriate entries from the data store and translate them into a plain-text representation
+    - The format parser is used to translate the plain-text representation into a list of dictionaries
+    - The list of dictionaries are deserialized into a list of Python objects [objs]
+
+Milestone v1.0.0 has required support for the following parsers
+ * CSV, JSON, and pickle formats (dictionaries <=> plaintext)
+ * File, SQLite, and http(s) protocols (plaintext <=> data store)

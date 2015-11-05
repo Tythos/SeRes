@@ -10,11 +10,12 @@ else:
 	from urllib.parse import urlparse, unquote, quote
 from os.path import split as splitpath, splitext
 from re import split, match
+import types
 
 def _match_all_queries(query):
 	return True
 	
-class RestUri:
+class RestUri(object):
 	def __init__(self, uri):
 		pr = urlparse(uri.replace("\\", "/"))
 		self.scheme = pr.scheme if pr.scheme is not None else ""
@@ -36,6 +37,9 @@ class RestUri:
 		if self.query is None:
 			self.query = {}
 		self.frag = pr.fragment if pr.fragment is not None else ""
+		
+	def __str__(self):
+		return "<REST URI: %s>" % self.get_full_uri()
 		
 	def get_file_name(self):
 		return self.file + "." + self.ext
@@ -62,7 +66,22 @@ class RestUri:
 			full_path = "/" + full_path
 		full_uri += full_path
 		return full_uri
-		
+
+	def is_match(self, filters):
+		# Returns true if all patterns match their respective fields
+		isMatch = True
+		for attr, pattern in filters.iteritems():
+			if hasattr(self, attr):
+				if type(pattern) is type(""):
+					if not match(pattern, getattr(self, attr)):
+						isMatch = false
+				elif type(pattern) == types.FunctionType:
+					if not pattern(getattr(self, attr)):
+						isMatch = false
+				else:
+					raise Exception("Filter values must be regular expression strings or functions")
+		return isMatch
+
 	@staticmethod
 	def parse_args(query):
 		args = {}
@@ -91,45 +110,3 @@ class RestUri:
 			else:
 				query = entry
 		return query
-
-class RestPattern:
-	def __init__(self):
-		self.dirpath = ".*"
-		self.ext = ".*"
-		self.file = ".*"
-		self.frag = ".*"
-		self.password = ".*"
-		self.port = ".*"
-		self.query = _match_all_queries
-		self.scheme = ".*"
-		self.server = ".*"
-		self.user = ".*"
-
-	def is_match(self, restUri):
-		# Returns true if all patterns match their respective fields
-		isMatch = True
-		if match(self.dirpath, restUri.dirpath) is None:
-			isMatch = False
-		if match(self.ext, restUri.ext) is None:
-			isMatch = False
-		if match(self.file, restUri.file) is None:
-			isMatch = False
-		if match(self.frag, restUri.frag) is None:
-			isMatch = False
-		if match(self.password, restUri.password) is None:
-			isMatch = False
-		if match(self.port, restUri.port) is None:
-			isMatch = False
-		if match(self.scheme, restUri.scheme) is None:
-			isMatch = False
-		if match(self.server, restUri.server) is None:
-			isMatch = False
-		if match(self.user, restUri.user) is None:
-			isMatch = False
-			
-		# Query patterns are matched by specific logic implemented by a user function; by default, this matches everything
-		if self.query(restUri.query) is False:
-			isMatch = False
-		return isMatch
-			
-		
