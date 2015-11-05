@@ -10,7 +10,6 @@
 import os
 from re import match
 import sys
-import sqlite3
 from seres import parsers
 
 if sys.version_info.major == 2:

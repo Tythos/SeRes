@@ -36,23 +36,6 @@ class Format(parsers.Parser):
 		# uniform schema
 		raise NotImplementedError("This format parser has an unimplemented dicts2ptext interface")
 		
-	@classmethod
-	def ptext2value(cls, ptext):
-		# Parses a plaintext representation of a single value for matching
-		# primitive types (True/False, int/float, and defaulting to string)
-		if ptext.lower() == "true":
-			return True
-		elif ptext.lower() == "false":
-			return False
-		try:
-			value = int(ptext)
-		except:
-			try:
-				value = float(ptext)
-			except:
-				value = ptext
-		return value
-
 class Csv(Format):
 	@classmethod
 	def get_filters(cls):
